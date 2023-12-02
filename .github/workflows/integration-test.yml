@@ -3,27 +3,27 @@ name: trading-ig integration test
 
 on:
   schedule:
-    - cron: '25 2 * * 1-4'
+    - cron: '30 2 * * 1-4'
   workflow_dispatch:
     
 jobs:
   build:
-    if: github.repository == 'ig-python/trading-ig'
-    runs-on: ubuntu-20.04
+    #if: github.repository == 'ig-python/trading-ig'
+    runs-on: ubuntu-latest
 
     steps:
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
-    - name: Set up Python 3.8
+    - name: Set up Python 3.11
       uses: actions/setup-python@v4
       with:
-        python-version: 3.8
+        python-version: 3.11
 
     - name: Install Poetry
-      uses: abatilo/actions-poetry@v2.3.0
+      uses: abatilo/actions-poetry@v2
       with:
-        poetry-version: 1.5.1
+        poetry-version: 1.7
 
     - name: Install dependencies
       run: |
