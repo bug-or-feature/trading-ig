@@ -28,7 +28,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<4.0"
+python = ">=3.8.1,<4.0"
 requests = "^2"
 pycryptodome = "^3.19"
 requests-cache = "^1"
@@ -50,7 +50,7 @@ sphinx = ["sphinx"]
 docs = ["sphinx"]
 
 [tool.poetry.group.dev.dependencies]
-flake8 = "^6"
+flake8 = "<7"
 pytest = "^7"
 responses = "^0"
 coveralls = "^3"
