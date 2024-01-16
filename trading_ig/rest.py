@@ -19,7 +19,7 @@ from requests import Session
 from urllib.parse import urlparse, parse_qs
 
 from datetime import timedelta, datetime
-from .utils import _HAS_PANDAS, _HAS_MUNCH
+from .utils import _HAS_PANDAS, _HAS_MUNCH, parse_utc
 from .utils import (
     conv_resol,
     conv_datetime,
@@ -925,8 +925,28 @@ class IGService:
 
     # -------- DEALING -------- #
 
-    def fetch_deal_by_deal_reference(self, deal_reference, session=None):
-        """Returns a deal confirmation for the given deal reference"""
+    def fetch_deal_by_deal_reference(
+        self, deal_reference, session=None, fix_deal_id=False
+    ):
+        """
+        Returns a deal confirmation for the given deal reference.
+
+        There is a bug in IG's implementation of this function. When updating and
+        closing positions, this function responds with the dealId of the opening deal
+        instead. If the `fix_deal_id` param is set to True, we will attempt to rectify
+        this, by looking up the deal using the '/history/activity' endpoint, and
+        replacing the opening dealId with the correct one.
+
+        :param deal_reference: deal reference code
+        :type deal_reference: str
+        :param session: session object. Optional
+        :type session: Session
+        :param fix_deal_id: if true, attempt to update the response with the correct
+            dealId
+        :type fix_deal_id: bool
+        :return: details of the deal
+        :rtype: dict
+        """
         self.non_trading_rate_limit_pause_or_pass()
         version = "1"
         params = {}
@@ -941,6 +961,10 @@ class IGService:
             else:
                 break
         data = self.parse_response(response.text)
+
+        if fix_deal_id:
+            data = self._fix_deal_id(data)
+
         return data
 
     def fetch_open_position_by_deal_id(self, deal_id, session=None):
@@ -1056,6 +1080,7 @@ class IGService:
         size,
         session=None,
         time_in_force=None,
+        fix_response=False,
     ):
         """Closes one or more OTC positions"""
         self.trading_rate_limit_pause_or_pass()
@@ -1078,7 +1103,9 @@ class IGService:
 
         if response.status_code == 200:
             deal_reference = json.loads(response.text)["dealReference"]
-            return self.fetch_deal_by_deal_reference(deal_reference)
+            return self.fetch_deal_by_deal_reference(
+                deal_reference, fix_deal_id=fix_response
+            )
         else:
             raise IGException(response.text)
 
@@ -1102,6 +1129,7 @@ class IGService:
         trailing_stop_increment,
         session=None,
         time_in_force=None,
+        fix_response=False,
     ):
         """Creates an OTC position"""
         self.trading_rate_limit_pause_or_pass()
@@ -1134,7 +1162,9 @@ class IGService:
 
         if response.status_code == 200:
             deal_reference = json.loads(response.text)["dealReference"]
-            return self.fetch_deal_by_deal_reference(deal_reference)
+            return self.fetch_deal_by_deal_reference(
+                deal_reference, fix_deal_id=fix_response
+            )
         else:
             raise IGException(response.text)
 
@@ -1149,6 +1179,7 @@ class IGService:
         trailing_stop_increment=None,
         session=None,
         version="2",
+        fix_response=False,
     ):
         """Updates an OTC position"""
         self.trading_rate_limit_pause_or_pass()
@@ -1173,7 +1204,9 @@ class IGService:
 
         if response.status_code == 200:
             deal_reference = json.loads(response.text)["dealReference"]
-            return self.fetch_deal_by_deal_reference(deal_reference)
+            return self.fetch_deal_by_deal_reference(
+                deal_reference, fix_deal_id=fix_response
+            )
         else:
             raise IGException(response.text)
 
@@ -1387,6 +1420,35 @@ class IGService:
             return self.fetch_deal_by_deal_reference(deal_reference)
         else:
             raise IGException(response.text)
+
+    def _fix_deal_id(self, result):
+        try:
+            deal_date = parse_utc(result["date"])
+        except Exception:  # noqa
+            logger.warning(f"Failed to convert date: {result['date']}")
+            return result
+
+        search_filter = (
+            f"channel==PUBLIC_WEB_API;"
+            f"type==POSITION,type==EDIT_STOP_AND_LIMIT;"
+            f"epic=={result['epic']}"
+        )
+
+        for i in range(5):
+            df = self.fetch_account_activity(
+                from_date=deal_date - timedelta(seconds=1),
+                to_date=deal_date + timedelta(seconds=1),
+                fiql_filter=search_filter,
+            )
+            if len(df) != 1:
+                logger.info("Recent activity not found, retrying...")
+                time.sleep(0.5)
+            else:
+                deal_id = df.iloc[0]["dealId"]
+                result["dealId"] = deal_id
+                break
+
+        return result
 
     # -------- END -------- #
 

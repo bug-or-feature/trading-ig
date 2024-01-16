@@ -735,6 +735,71 @@ class TestIntegration:
         assert close_result["dealStatus"] == "ACCEPTED"
         assert close_result["reason"] == "SUCCESS"
 
+    def test_create_open_position_correcting_close_id(self, ig_service: IGService):
+        epic = "IX.D.FTSE.DAILY.IP"
+        market_info = ig_service.fetch_market_by_epic(epic)
+        status = market_info.snapshot.marketStatus
+        min_bet = market_info.dealingRules.minDealSize.value
+        bid = market_info.snapshot.bid
+        offer = market_info.snapshot.offer
+        if status != "TRADEABLE":
+            pytest.skip("Skipping open position test, market not open")
+
+        open_result = ig_service.create_open_position(
+            epic=epic,
+            direction="BUY",
+            currency_code="GBP",
+            order_type="MARKET",
+            expiry="DFB",
+            force_open="false",
+            guaranteed_stop="false",
+            size=min_bet,
+            level=None,
+            limit_level=None,
+            limit_distance=None,
+            quote_id=None,
+            stop_distance=None,
+            stop_level=None,
+            trailing_stop=None,
+            trailing_stop_increment=None,
+        )
+        open_id = open_result["dealId"]
+        assert open_result["dealStatus"] == "ACCEPTED"
+        assert open_result["reason"] == "SUCCESS"
+        assert open_result["status"] == "OPEN"
+        time.sleep(10)
+
+        update_result = ig_service.update_open_position(
+            offer * 1.5,
+            bid * 0.5,
+            open_result["dealId"],
+            fix_response=True,
+        )
+        update_id = update_result["dealId"]
+        assert update_result["dealStatus"] == "ACCEPTED"
+        assert update_result["reason"] == "SUCCESS"
+        assert update_result["status"] == "AMENDED"
+        assert open_id != update_id
+        time.sleep(10)
+
+        close_result = ig_service.close_open_position(
+            deal_id=open_result["dealId"],
+            direction="SELL",
+            epic=None,
+            expiry="DFB",
+            level=None,
+            order_type="MARKET",
+            quote_id=None,
+            size=0.5,
+            session=None,
+            fix_response=True,
+        )
+        close_id = close_result["dealId"]
+        assert close_result["dealStatus"] == "ACCEPTED"
+        assert close_result["reason"] == "SUCCESS"
+        assert close_result["status"] == "CLOSED"
+        assert open_id != close_id
+
     def test_create_working_order(self, ig_service: IGService):
         epic = "CS.D.GBPUSD.TODAY.IP"
         market_info = ig_service.fetch_market_by_epic(epic)
