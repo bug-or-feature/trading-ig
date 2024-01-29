@@ -12,6 +12,7 @@ import json
 import logging
 import time
 from base64 import b64encode, b64decode
+from tenacity import retry, wait_exponential, retry_if_exception_type
 
 from Crypto.Cipher import PKCS1_v1_5
 from Crypto.PublicKey import RSA
@@ -50,6 +51,15 @@ class ApiExceededException(Exception):
 
 class TokenInvalidException(Exception):
     """Raised when the session token is invalid or expired"""
+
+    pass
+
+
+class DataNotFoundException(Exception):
+    """
+    Raised when the data we expect has not been found.
+    Allows hooking into tenacity retry system
+    """
 
     pass
 
@@ -1421,32 +1431,32 @@ class IGService:
         else:
             raise IGException(response.text)
 
+    @retry(
+        wait=wait_exponential(), retry=retry_if_exception_type(DataNotFoundException)
+    )
     def _fix_deal_id(self, result):
-        try:
-            deal_date = parse_utc(result["date"])
-        except Exception:  # noqa
-            logger.warning(f"Failed to convert date: {result['date']}")
-            return result
-
+        deal_date = parse_utc(result["date"])
         search_filter = (
             f"channel==PUBLIC_WEB_API;"
             f"type==POSITION,type==EDIT_STOP_AND_LIMIT;"
             f"epic=={result['epic']}"
         )
 
-        for i in range(5):
-            df = self.fetch_account_activity(
-                from_date=deal_date - timedelta(seconds=1),
-                to_date=deal_date + timedelta(seconds=1),
-                fiql_filter=search_filter,
+        df = self.fetch_account_activity(
+            from_date=deal_date - timedelta(seconds=1),
+            to_date=deal_date + timedelta(seconds=1),
+            fiql_filter=search_filter,
+        )
+
+        if len(df) != 1:
+            logger.warning("fixing dealId failed, recent activity not found")
+            raise DataNotFoundException(
+                f"Recent activity for {result['epic']} not found"
             )
-            if len(df) != 1:
-                logger.info("Recent activity not found, retrying...")
-                time.sleep(0.5)
-            else:
-                deal_id = df.iloc[0]["dealId"]
-                result["dealId"] = deal_id
-                break
+        else:
+            deal_id = df.iloc[0]["dealId"]
+            result["dealId"] = deal_id
+            logger.info("dealId fixed successfully")
 
         return result
 
