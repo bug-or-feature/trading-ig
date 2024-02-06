@@ -12,7 +12,6 @@ import json
 import logging
 import time
 from base64 import b64encode, b64decode
-from tenacity import retry, wait_exponential, retry_if_exception_type
 
 from Crypto.Cipher import PKCS1_v1_5
 from Crypto.PublicKey import RSA
@@ -942,10 +941,12 @@ class IGService:
         Returns a deal confirmation for the given deal reference.
 
         There is a bug in IG's implementation of this function. When updating and
-        closing positions, this function responds with the dealId of the opening deal
+        closing positions, the IG response contains dealId of the opening deal
         instead. If the `fix_deal_id` param is set to True, we will attempt to rectify
         this, by looking up the deal using the '/history/activity' endpoint, and
         replacing the opening dealId with the correct one.
+
+        Note that this solution requires the `tenacity` library to be installed.
 
         :param deal_reference: deal reference code
         :type deal_reference: str
@@ -1431,34 +1432,46 @@ class IGService:
         else:
             raise IGException(response.text)
 
-    @retry(
-        wait=wait_exponential(), retry=retry_if_exception_type(DataNotFoundException)
-    )
     def _fix_deal_id(self, result):
-        deal_date = parse_utc(result["date"])
-        search_filter = (
-            f"channel==PUBLIC_WEB_API;"
-            f"type==POSITION,type==EDIT_STOP_AND_LIMIT;"
-            f"epic=={result['epic']}"
-        )
-
-        df = self.fetch_account_activity(
-            from_date=deal_date - timedelta(seconds=1),
-            to_date=deal_date + timedelta(seconds=1),
-            fiql_filter=search_filter,
-        )
-
-        if len(df) != 1:
-            logger.warning("fixing dealId failed, recent activity not found")
-            raise DataNotFoundException(
-                f"Recent activity for {result['epic']} not found"
+        try:
+            from tenacity import (
+                Retrying,
+                wait_exponential,
+                retry_if_exception_type,
             )
-        else:
-            deal_id = df.iloc[0]["dealId"]
-            result["dealId"] = deal_id
-            logger.info("dealId fixed successfully")
+        except ImportError():
+            logger.error("fixing dealId failed, 'tenacity' must be installed")
+            return result
 
-        return result
+        for attempt in Retrying(
+            wait=wait_exponential(),
+            retry=retry_if_exception_type(DataNotFoundException),
+        ):
+            with attempt:
+                deal_date = parse_utc(result["date"])
+                search_filter = (
+                    f"channel==PUBLIC_WEB_API;"
+                    f"type==POSITION,type==EDIT_STOP_AND_LIMIT;"
+                    f"epic=={result['epic']}"
+                )
+
+                df = self.fetch_account_activity(
+                    from_date=deal_date - timedelta(seconds=1),
+                    to_date=deal_date + timedelta(seconds=1),
+                    fiql_filter=search_filter,
+                )
+
+                if len(df) != 1:
+                    logger.warning("fixing dealId failed, recent activity not found")
+                    raise DataNotFoundException(
+                        f"Recent activity for {result['epic']} not found"
+                    )
+                else:
+                    deal_id = df.iloc[0]["dealId"]
+                    result["dealId"] = deal_id
+                    logger.info("dealId fixed successfully")
+
+                return result
 
     # -------- END -------- #
 
