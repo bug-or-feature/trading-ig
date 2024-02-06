@@ -1,10 +1,11 @@
-from trading_ig.rest import IGService, ApiExceededException, TokenInvalidException
+import json
+
+import pandas as pd
+import pytest
 import responses
 from responses import Response
-import json
-import tenacity
-from tenacity import Retrying
-import pandas as pd
+
+from trading_ig.rest import IGService, ApiExceededException, TokenInvalidException
 
 RETRYABLE = (ApiExceededException, TokenInvalidException)
 
@@ -14,6 +15,12 @@ class TestRetry:
 
     @responses.activate
     def test_exceed_retry(self):
+        try:
+            from tenacity import Retrying, wait_exponential, retry_if_exception_type
+        except ImportError:
+            pytest.skip("Skipping - this test needs tenacity")
+            return
+
         with open("tests/data/accounts_balances.json", "r") as file:
             response_body = json.loads(file.read())
 
@@ -50,8 +57,8 @@ class TestRetry:
             "api_key",
             "DEMO",
             retryer=Retrying(
-                wait=tenacity.wait_exponential(),
-                retry=tenacity.retry_if_exception_type(ApiExceededException),
+                wait=wait_exponential(),
+                retry=retry_if_exception_type(ApiExceededException),
             ),
         )
 
@@ -63,6 +70,12 @@ class TestRetry:
 
     @responses.activate
     def test_token_retry(self):
+        try:
+            from tenacity import Retrying, wait_exponential, retry_if_exception_type
+        except ImportError:
+            pytest.skip("Skipping - this test needs tenacity")
+            return
+
         with open("tests/data/accounts_balances.json", "r") as file:
             response_body = json.loads(file.read())
 
@@ -98,8 +111,8 @@ class TestRetry:
             "api_key",
             "DEMO",
             retryer=Retrying(
-                wait=tenacity.wait_exponential(),
-                retry=tenacity.retry_if_exception_type(TokenInvalidException),
+                wait=wait_exponential(),
+                retry=retry_if_exception_type(TokenInvalidException),
             ),
         )
 
@@ -111,6 +124,12 @@ class TestRetry:
 
     @responses.activate
     def test_all_retry(self):
+        try:
+            from tenacity import Retrying, wait_exponential, retry_if_exception_type
+        except ImportError:
+            pytest.skip("Skipping - this test needs tenacity")
+            return
+
         with open("tests/data/accounts_balances.json", "r") as file:
             response_body = json.loads(file.read())
 
@@ -139,8 +158,8 @@ class TestRetry:
             "api_key",
             "DEMO",
             retryer=Retrying(
-                wait=tenacity.wait_exponential(),
-                retry=tenacity.retry_if_exception_type(RETRYABLE),
+                wait=wait_exponential(),
+                retry=retry_if_exception_type(RETRYABLE),
             ),
         )
 
