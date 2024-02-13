@@ -1438,6 +1438,7 @@ class IGService:
                 Retrying,
                 wait_exponential,
                 retry_if_exception_type,
+                stop_after_delay,
             )
         except ImportError():
             logger.error("fixing dealId failed, 'tenacity' must be installed")
@@ -1446,6 +1447,7 @@ class IGService:
         for attempt in Retrying(
             wait=wait_exponential(),
             retry=retry_if_exception_type(DataNotFoundException),
+            stop=stop_after_delay(300),
         ):
             with attempt:
                 deal_date = parse_utc(result["date"])
