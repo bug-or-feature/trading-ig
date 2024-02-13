@@ -1436,7 +1436,7 @@ class IGService:
         try:
             from tenacity import (
                 Retrying,
-                wait_exponential,
+                wait_random,
                 retry_if_exception_type,
                 stop_after_delay,
             )
@@ -1445,9 +1445,9 @@ class IGService:
             return result
 
         for attempt in Retrying(
-            wait=wait_exponential(),
+            wait=wait_random(min=1, max=2),
             retry=retry_if_exception_type(DataNotFoundException),
-            stop=stop_after_delay(300),
+            stop=stop_after_delay(10),
         ):
             with attempt:
                 deal_date = parse_utc(result["date"])
