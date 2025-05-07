@@ -38,8 +38,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-pandas = ["pandas~=2"]
-munch = ["munch~=2.5"]
+pandas = ["pandas<3"]
+munch = ["munch~=4"]
 tenacity = ["tenacity~=8"]
 
 [tool.poetry.group.dev]
