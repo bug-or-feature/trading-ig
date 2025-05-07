@@ -45,10 +45,10 @@ For anything else, please use the documentation and tools provided by IG
 * `Getting Started Guide <https://labs.ig.com/gettingstarted>`_
 * `REST API Guide <https://labs.ig.com/rest-trading-api-guide>`_
 * `REST API Reference <https://labs.ig.com/rest-trading-api-reference>`_
-* `REST API Companion <https://labs.ig.com/sample-apps/api-companion/index.html>`_
+* `REST API Companion <https://labs.ig.com/sample-apps/api-rest-companion-release/index.html>`_
 * `Streaming API Guide <https://labs.ig.com/streaming-api-guide>`_
 * `Streaming API Reference <https://labs.ig.com/streaming-api-reference>`_
-* `Streaming API Companion <https://labs.ig.com/sample-apps/streaming-companion/index.html>`_
+* `Streaming API Companion <https://labs.ig.com/sample-apps/api-streaming-companion-release/index.html>`_
 
 
 Contributing

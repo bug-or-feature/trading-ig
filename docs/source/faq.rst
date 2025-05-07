@@ -367,7 +367,7 @@ How do I find the epic for market 'X'?
 
 There are a few different ways:
 
-1. Use the `REST API Companion <https://labs.ig.com/sample-apps/api-companion/index.html>`_. This is a good
+1. Use the `REST API Companion <https://labs.ig.com/sample-apps/api-rest-companion-release/index.html>`_. This is a good
 tool to get familiar with anyway, if you want to learn about the IG APIs. Login, then use the *Search Markets*
 part, enter your search term, and press *Go*. The results will show any markets that match the search term you
 entered, and *epic* is one of the attributes displayed in the results. Its a simple text search though, there's
