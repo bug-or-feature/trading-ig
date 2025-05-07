@@ -37,26 +37,22 @@ dependencies = [
     "lightstreamer-client-lib",
 ]
 
+[project.optional-dependencies]
+pandas = ["pandas~=2"]
+munch = ["munch~=2.5"]
+tenacity = ["tenacity~=8"]
+
 [tool.poetry.group.dev]
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-pytest = "~8"
 flake8 = "~7"
-responses = "~0.25"
-coveralls = "~3"
-sphinx-rtd-theme = "~3"
 black = "~23.3"
+responses = "~0.25"
+pytest = "~8"
+coveralls = "~3"
 sphinx = "~7"
-
-[tool.poetry.group.pandas.dependencies]
-pandas = {version = "~2", optional = true}
-
-[tool.poetry.group.munch.dependencies]
-munch = {version = "~2.5", optional = true}
-
-[tool.poetry.group.tenacity.dependencies]
-tenacity = {version = "~8", optional = true}
+sphinx-rtd-theme = "~3"
 
 [project.urls]
 homepage = "https://github.com/ig-python/trading-ig"
