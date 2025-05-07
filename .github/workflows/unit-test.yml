@@ -31,7 +31,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        poetry install --all-groups
+        poetry install  --all-extras --all-groups
 
     - name: Prettify with black
       uses: psf/black@stable

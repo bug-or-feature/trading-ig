@@ -27,7 +27,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        poetry install --all-groups
+        poetry install  --all-extras --all-groups
 
     - name: Integration test with pytest
       env:
