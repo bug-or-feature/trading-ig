@@ -31,7 +31,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        poetry install --extras "pandas munch tenacity"
+        poetry install --all-groups
 
     - name: Prettify with black
       uses: psf/black@stable
