@@ -97,7 +97,7 @@ This library is maintained by one busy developer in his spare time, with very li
 
 If you have a problem using this library, the first thing to do is to try to isolate where the problem is. The IG platform is a complex application, and there are many ways to make mistakes using it. Just because you see an error, it does not necessarily mean there is a problem with this library. If you encounter an issue, you should follow these steps, in order:
 
-1 - Check if there a problem with the IG platform. From time to time the IG platform itself has issues, especially the DEMO environment. If you see a message like `ConnectionRefusedError`, or a 500 Server error, then it could be an issue with the IG platform. IG provide a `status page <https://status.ig.com/>`_, though its accuracy is questionable. You can also check the `IG Community forums <https://community.ig.com/>`__. If there are platform issues, its likely someone will have already posted a message there.
+1 - Check if there a problem with the IG platform. From time to time the IG platform itself has issues, especially the DEMO environment. If you see a message like `ConnectionRefusedError`, or a 500 Server error, then it could be an issue with the IG platform. IG provide a `status page <https://status.ig.com/>`_, though its accuracy is questionable.
 
 2 - Check if there is a problem with your code. Most of the API endpoints have multiple options, multiple versions, multiple ways of accessing them, and multiple interdependent parameters. Incoming data is validated on the server, and problems will be reported back in the response. You should
 
@@ -108,7 +108,6 @@ If you have a problem using this library, the first thing to do is to try to iso
 In this case you should:
 
 * read the IG docs more carefully, or
-* post a question in the `IG Community site <https://community.ig.com/>`__, or
 * contact the `API support team <mailto:webapisupport@ig.com>`_
 
 3 - If you're sure that the problem is with this library, please:
