@@ -1417,6 +1417,321 @@ class IGService:
 
     # -------- END -------- #
 
+    # -------- INDICATIVE COSTS -------- #
+
+    def fetch_indicative_costs_open(
+        self,
+        ask,
+        bid,
+        deal_currency_code,
+        deal_reference,
+        size,
+        direction=None,
+        epic=None,
+        guaranteed_stop=None,
+        instrument_id=None,
+        knockout_premium=None,
+        price_level=None,
+        stop_level=None,
+        session=None,
+    ):
+        """
+        Returns indicative costs and charges at opening a position
+        :param ask: current ask price
+        :type ask: float
+        :param bid: current bid price
+        :type bid: float
+        :param deal_currency_code: deal currency code
+        :type deal_currency_code: str
+        :param deal_reference: deal reference from the position creation
+        :type deal_reference: str
+        :param size: position size
+        :type size: float
+        :param direction: deal direction (BUY or SELL), optional
+        :type direction: str
+        :param epic: instrument epic identifier, optional
+        :type epic: str
+        :param guaranteed_stop: guaranteed stop flag, optional
+        :type guaranteed_stop: bool
+        :param instrument_id: instrument identifier, optional
+        :type instrument_id: str
+        :param knockout_premium: knockout premium, optional
+        :type knockout_premium: float
+        :param price_level: price level, optional
+        :type price_level: float
+        :param stop_level: stop level, optional
+        :type stop_level: float
+        :param session: session object, optional
+        :type session: Session
+        :return: indicative costs and charges data
+        :rtype: dict
+        """
+        self.non_trading_rate_limit_pause_or_pass()
+        version = "1"
+        params = {
+            "ask": ask,
+            "bid": bid,
+            "dealCurrencyCode": deal_currency_code,
+            "dealReference": deal_reference,
+            "size": size,
+        }
+        if direction is not None:
+            params["direction"] = direction
+        if epic is not None:
+            params["epic"] = epic
+        if guaranteed_stop is not None:
+            params["guaranteedStop"] = guaranteed_stop
+        if instrument_id is not None:
+            params["instrumentId"] = instrument_id
+        if knockout_premium is not None:
+            params["knockoutPremium"] = knockout_premium
+        if price_level is not None:
+            params["priceLevel"] = price_level
+        if stop_level is not None:
+            params["stopLevel"] = stop_level
+        endpoint = "/indicativecostsandcharges/open"
+        action = "create"
+        response = self._req(action, endpoint, params, session, version)
+        data = self.parse_response(response.text)
+        if self.return_munch:
+            data = munchify(data)
+        return data
+
+    def fetch_indicative_costs_close(
+        self,
+        ask,
+        bid,
+        deal_currency_code,
+        deal_reference,
+        opening_level,
+        size,
+        direction=None,
+        epic=None,
+        guaranteed_stop=None,
+        instrument_id=None,
+        knockout_premium=None,
+        price_level=None,
+        stop_level=None,
+        session=None,
+    ):
+        """
+        Returns indicative costs and charges at closing a position
+        :param ask: current ask price
+        :type ask: float
+        :param bid: current bid price
+        :type bid: float
+        :param deal_currency_code: deal currency code
+        :type deal_currency_code: str
+        :param deal_reference: deal reference from the position
+        :type deal_reference: str
+        :param opening_level: opening level of the position
+        :type opening_level: float
+        :param size: position size
+        :type size: float
+        :param direction: deal direction (BUY or SELL), optional
+        :type direction: str
+        :param epic: instrument epic identifier, optional
+        :type epic: str
+        :param guaranteed_stop: guaranteed stop flag, optional
+        :type guaranteed_stop: bool
+        :param instrument_id: instrument identifier, optional
+        :type instrument_id: str
+        :param knockout_premium: knockout premium, optional
+        :type knockout_premium: float
+        :param price_level: price level, optional
+        :type price_level: float
+        :param stop_level: stop level, optional
+        :type stop_level: float
+        :param session: session object, optional
+        :type session: Session
+        :return: indicative costs and charges data
+        :rtype: dict
+        """
+        self.non_trading_rate_limit_pause_or_pass()
+        version = "1"
+        params = {
+            "ask": ask,
+            "bid": bid,
+            "dealCurrencyCode": deal_currency_code,
+            "dealReference": deal_reference,
+            "openingLevel": opening_level,
+            "size": size,
+        }
+        if direction is not None:
+            params["direction"] = direction
+        if epic is not None:
+            params["epic"] = epic
+        if guaranteed_stop is not None:
+            params["guaranteedStop"] = guaranteed_stop
+        if instrument_id is not None:
+            params["instrumentId"] = instrument_id
+        if knockout_premium is not None:
+            params["knockoutPremium"] = knockout_premium
+        if price_level is not None:
+            params["priceLevel"] = price_level
+        if stop_level is not None:
+            params["stopLevel"] = stop_level
+        endpoint = "/indicativecostsandcharges/close"
+        action = "create"
+        response = self._req(action, endpoint, params, session, version)
+        data = self.parse_response(response.text)
+        if self.return_munch:
+            data = munchify(data)
+        return data
+
+    def fetch_indicative_costs_edit(
+        self,
+        ask,
+        bid,
+        deal_currency_code,
+        deal_reference,
+        opening_level,
+        size,
+        direction=None,
+        edit_type=None,
+        epic=None,
+        guaranteed_stop=None,
+        instrument_id=None,
+        knockout_premium=None,
+        limit_level=None,
+        price_level=None,
+        stop_level=None,
+        session=None,
+    ):
+        """
+        Returns indicative costs and charges for editing an order
+        :param ask: current ask price
+        :type ask: float
+        :param bid: current bid price
+        :type bid: float
+        :param deal_currency_code: deal currency code
+        :type deal_currency_code: str
+        :param deal_reference: deal reference from the position
+        :type deal_reference: str
+        :param opening_level: opening level of the position
+        :type opening_level: float
+        :param size: position size
+        :type size: float
+        :param direction: deal direction (BUY or SELL), optional
+        :type direction: str
+        :param edit_type: type of edit, optional
+        :type edit_type: str
+        :param epic: instrument epic identifier, optional
+        :type epic: str
+        :param guaranteed_stop: guaranteed stop flag, optional
+        :type guaranteed_stop: bool
+        :param instrument_id: instrument identifier, optional
+        :type instrument_id: str
+        :param knockout_premium: knockout premium, optional
+        :type knockout_premium: float
+        :param limit_level: limit level, optional
+        :type limit_level: float
+        :param price_level: price level, optional
+        :type price_level: float
+        :param stop_level: stop level, optional
+        :type stop_level: float
+        :param session: session object, optional
+        :type session: Session
+        :return: indicative costs and charges data
+        :rtype: dict
+        """
+        self.non_trading_rate_limit_pause_or_pass()
+        version = "1"
+        params = {
+            "ask": ask,
+            "bid": bid,
+            "dealCurrencyCode": deal_currency_code,
+            "dealReference": deal_reference,
+            "openingLevel": opening_level,
+            "size": size,
+        }
+        if direction is not None:
+            params["direction"] = direction
+        if edit_type is not None:
+            params["editType"] = edit_type
+        if epic is not None:
+            params["epic"] = epic
+        if guaranteed_stop is not None:
+            params["guaranteedStop"] = guaranteed_stop
+        if instrument_id is not None:
+            params["instrumentId"] = instrument_id
+        if knockout_premium is not None:
+            params["knockoutPremium"] = knockout_premium
+        if limit_level is not None:
+            params["limitLevel"] = limit_level
+        if price_level is not None:
+            params["priceLevel"] = price_level
+        if stop_level is not None:
+            params["stopLevel"] = stop_level
+        endpoint = "/indicativecostsandchargec/edit"
+        action = "create"
+        response = self._req(action, endpoint, params, session, version)
+        data = self.parse_response(response.text)
+        if self.return_munch:
+            data = munchify(data)
+        return data
+
+    def fetch_indicative_costs_history(
+        self,
+        from_date,
+        to_date,
+        session=None,
+    ):
+        """
+        Returns indicative costs and charges history for the given date range
+        :param from_date: start date (format: YYYY-MM-DD)
+        :type from_date: str
+        :param to_date: end date (format: YYYY-MM-DD)
+        :type to_date: str
+        :param session: session object, optional
+        :type session: Session
+        :return: indicative costs and charges history data
+        :rtype: dict or pd.DataFrame
+        """
+        self.non_trading_rate_limit_pause_or_pass()
+        version = "1"
+        params = {}
+        url_params = {"from": from_date, "to": to_date}
+        endpoint = "/indicativecostsandcharges/history/from/{from}/to/{to}".format(
+            **url_params
+        )
+        action = "read"
+        response = self._req(action, endpoint, params, session, version)
+        data = self.parse_response(response.text)
+        if self.return_dataframe and "history" in data:
+            data = pd.DataFrame(data["history"])
+        elif self.return_munch:
+            data = munchify(data)
+        return data
+
+    def fetch_indicative_costs_durablemedium(
+        self,
+        indicative_quote_reference,
+        session=None,
+    ):
+        """
+        Download a previously generated indicative costs and charges quote as a pdf
+        :param indicative_quote_reference: reference for the indicative quote
+        :type indicative_quote_reference: str
+        :param session: session object, optional
+        :type session: Session
+        :return: PDF content as bytes
+        :rtype: bytes
+        """
+        self.non_trading_rate_limit_pause_or_pass()
+        version = "1"
+        params = {}
+        url_params = {"indicativeQuoteReference": indicative_quote_reference}
+        endpoint = "/indicativecostsandcharges/durablemedium/{indicativeQuoteReference}".format(
+            **url_params
+        )
+        action = "read"
+        response = self._req(action, endpoint, params, session, version)
+        # For PDF downloads, return the raw content instead of parsing as JSON
+        return response.content
+
+    # -------- END -------- #
+
     # -------- MARKETS -------- #
 
     def fetch_client_sentiment_by_instrument(self, market_id, session=None):
