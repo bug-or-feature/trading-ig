@@ -1722,9 +1722,9 @@ class IGService:
         version = "1"
         params = {}
         url_params = {"indicativeQuoteReference": indicative_quote_reference}
-        endpoint = "/indicativecostsandcharges/durablemedium/{indicativeQuoteReference}".format(
-            **url_params
-        )
+        endpoint = (
+            "/indicativecostsandcharges/" "durablemedium/{indicativeQuoteReference}"
+        ).format(**url_params)
         action = "read"
         response = self._req(action, endpoint, params, session, version)
         # For PDF downloads, return the raw content instead of parsing as JSON
