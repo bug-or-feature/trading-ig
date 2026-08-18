@@ -76,7 +76,7 @@ def ig_service(request, retrying):
     for watchlist in wls_dict:
         if watchlist["name"].startswith("test_"):
             print(f"Deleting watchlist with id {watchlist['id']}")
-            ig_service.delete_watchlist(watchlist['id'])
+            ig_service.delete_watchlist(watchlist["id"])
 
     # delete any orders
     wos_dict = ig_service.fetch_working_orders().to_dict(orient="records")
